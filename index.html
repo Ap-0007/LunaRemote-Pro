@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>LunaRemote Pro v5.1</title>
+    <!-- Relative paths for GitHub Pages compatibility -->
+    <link rel="stylesheet" href="static/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="manifest" href="static/manifest.json">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash">
+        <div class="splash-logo">LUNA<span>PRO</span></div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <!-- Security PIN Overlay -->
+    <div id="auth-overlay" class="hidden">
+        <div class="auth-content">
+            <div class="auth-header">
+                <h2>Access Locked</h2>
+                <p>Enter 6-digit Security PIN</p>
+            </div>
+            
+            <div id="pin-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div class="numpad">
+                <button onclick="keyPress('1')">1</button>
+                <button onclick="keyPress('2')">2</button>
+                <button onclick="keyPress('3')">3</button>
+                <button onclick="keyPress('4')">4</button>
+                <button onclick="keyPress('5')">5</button>
+                <button onclick="keyPress('6')">6</button>
+                <button onclick="keyPress('7')">7</button>
+                <button onclick="keyPress('8')">8</button>
+                <button onclick="keyPress('9')">9</button>
+                <button class="empty"></button>
+                <button onclick="keyPress('0')">0</button>
+                <button onclick="keyPress('DEL')" class="del">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App UI -->
+    <div id="app">
+        <header>
+            <div class="logo">LUNA<span>PRO</span></div>
+            <div class="status-group">
+                <div class="status-indicator" id="auth-state">🔒</div>
+                <div class="status" id="connection-status">Connecting...</div>
+            </div>
+        </header>
+
+        <nav class="tabs-nav">
+            <button class="tab-link active" data-tab="trackpad-view">Trackpad</button>
+            <button class="tab-link" data-tab="apps-view">Launch</button>
+            <button class="tab-link" data-tab="controls-view">Controls</button>
+            <button class="tab-link" data-tab="premium-view">Premium</button>
+        </nav>
+
+        <main>
+            <!-- Trackpad Tab -->
+            <section id="trackpad-view" class="tab-content active">
+                <div id="trackpad" class="glass-panel">
+                    <div class="trackpad-label">ULTRA PRECISION</div>
+                    <div class="trackpad-hint">2-Finger Scroll • Long Press Right-Click</div>
+                </div>
+                
+                <div class="pro-toolbar">
+                    <button class="pro-btn" id="pro-drag">Drag</button>
+                    <button class="pro-btn" id="pro-rclick">R-Click</button>
+                    <div class="kb-compact">
+                        <input type="text" id="kb-input" placeholder="Type..." autocomplete="off">
+                        <button id="kb-backspace">⌫</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Launchpad Tab -->
+            <section id="apps-view" class="tab-content">
+                <div class="launchpad-grid">
+                    <div class="app-card" data-app="Google Chrome">🌐<span>Chrome</span></div>
+                    <div class="app-card" data-app="Spotify">🎵<span>Spotify</span></div>
+                    <div class="app-card" data-app="Visual Studio Code">💻<span>VS Code</span></div>
+                    <div class="app-card" data-app="Slack">💬<span>Slack</span></div>
+                    <div class="app-card pro-locked" data-app="Photoshop">🎨<span>Photoshop</span></div>
+                    <div class="app-card pro-locked" data-app="Final Cut Pro">🎬<span>Final Cut</span></div>
+                </div>
+            </section>
+
+            <!-- Controls Tab -->
+            <section id="controls-view" class="tab-content">
+                <div class="controls-grid">
+                    <div class="glass-panel control-card full-width">
+                        <h3>Panic Switch</h3>
+                        <div id="panic-slider">
+                            <div id="panic-label">SLICE TO DISCONNECT</div>
+                            <div id="panic-handle"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-panel control-card">
+                        <h3>Volume</h3>
+                        <div class="btn-row">
+                            <button class="icon-btn" id="vol-down">-</button>
+                            <button class="icon-btn" id="vol-mute">M</button>
+                            <button class="icon-btn" id="vol-up">+</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel control-card">
+                        <h3>Media</h3>
+                        <div class="btn-row">
+                            <button class="icon-btn" id="media-prev">⏮</button>
+                            <button class="icon-btn" id="media-play">⏯</button>
+                            <button class="icon-btn" id="media-next">⏭</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel control-card full-width">
+                        <h3>System Tools</h3>
+                        <div class="btn-row">
+                            <button class="action-btn" id="sys-lock">Lock Mac</button>
+                            <button class="action-btn danger" id="sys-sleep">Sleep</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Premium Tab -->
+            <section id="premium-view" class="tab-content">
+                <div class="premium-hero">
+                    <div id="sparkles-container"></div>
+                    <h2>Upgrade to Ultra</h2>
+                    <p>Unlock the full power of your workstation.</p>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <span id="pro-price">$4.99<span class="period">/mo</span></span>
+                        <div class="toggle-container">
+                            <span>Monthly</span>
+                            <label class="switch">
+                                <input type="checkbox" id="plan-toggle">
+                                <span class="slider round"></span>
+                            </label>
+                            <span>Yearly</span>
+                        </div>
+                    </div>
+                    <button class="unlock-btn" id="unlock-btn">Unlock All Features</button>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>LunaRemote Pro v5.1 • Global Edition</p>
+        </footer>
+    </div>
+
+    <!-- Relative path for script -->
+    <script src="static/script.js"></script>
+</body>
+</html>

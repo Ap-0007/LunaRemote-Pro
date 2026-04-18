@@ -1,0 +1,331 @@
+:root {
+    --bg-color: #050510;
+    --panel-bg: rgba(20, 20, 35, 0.6);
+    --accent: #00f2ff;
+    --accent-glow: rgba(0, 242, 255, 0.3);
+    --secondary: #7000ff;
+    --text: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.6);
+    --danger: #ff0055;
+    
+    --siri-gradient: linear-gradient(135deg, #7000ff, #00f2ff);
+    --chatgpt-emerald: #10a37f;
+    --gemini-sky: #4285f4;
+    --claude-gold: #d97757;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-color);
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(112, 0, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(0, 242, 255, 0.1) 0%, transparent 50%);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 15px;
+    padding-top: max(15px, env(safe-area-inset-top));
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.logo {
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.status {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.status.connected {
+    color: var(--accent);
+    border: 1px solid var(--accent-glow);
+}
+
+/* Tab Navigation */
+.tabs-nav {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 14px;
+}
+
+.tab-link {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.tab-link.active {
+    background: var(--panel-bg);
+    color: var(--accent);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+main {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    animation: slideUp 0.3s ease;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glass Panels */
+.glass-panel {
+    background: var(--panel-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+}
+
+/* Pro Trackpad */
+#trackpad {
+    height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border: 1px solid rgba(0, 242, 255, 0.1);
+    box-shadow: inset 0 0 50px rgba(0, 242, 255, 0.02);
+    touch-action: none;
+}
+
+.trackpad-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 5px;
+    opacity: 0.3;
+}
+
+.trackpad-hint {
+    font-size: 0.5rem;
+    color: var(--text-dim);
+    margin-top: 10px;
+    opacity: 0.6;
+}
+
+/* Pro Toolbar */
+.pro-toolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.pro-btn {
+    flex: 1;
+    padding: 15px;
+    background: var(--panel-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+}
+
+.pro-btn.active {
+    background: var(--accent);
+    color: black;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.kb-compact {
+    display: flex;
+    gap: 5px;
+    background: var(--panel-bg);
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex: 2;
+}
+
+.kb-compact input {
+    width: 60px;
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.kb-compact button {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+/* AI Hub Styles */
+.ai-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.ai-card {
+    position: relative;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.ai-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.05;
+    transition: opacity 0.3s;
+}
+
+.ai-card:active {
+    transform: scale(0.95);
+}
+
+.ai-card:active .ai-glow {
+    opacity: 0.2;
+}
+
+.ai-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    z-index: 1;
+}
+
+.ai-name {
+    font-weight: 700;
+    font-size: 1rem;
+    z-index: 1;
+}
+
+.ai-hint {
+    font-size: 0.6rem;
+    opacity: 0.5;
+    margin-top: 5px;
+    z-index: 1;
+}
+
+/* AI Variants */
+.siri .ai-glow { background: var(--siri-gradient); }
+.siri .ai-name { color: #a29bfe; }
+
+.chatgpt .ai-glow { background: var(--chatgpt-emerald); }
+.chatgpt .ai-name { color: var(--chatgpt-emerald); }
+
+.gemini .ai-glow { background: var(--gemini-sky); }
+.gemini .ai-name { color: var(--gemini-sky); }
+
+.claude .ai-glow { background: var(--claude-gold); }
+.claude .ai-name { color: var(--claude-gold); }
+
+.ask {
+    grid-column: span 2;
+    height: 100px;
+    border: 1px solid var(--accent-glow);
+}
+.ask .ai-glow { background: var(--accent); }
+.ask .ai-name { color: var(--accent); }
+
+/* Grid styles */
+.launchpad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.app-card {
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--panel-bg);
+    border-radius: 20px;
+    font-size: 2rem;
+    gap: 8px;
+}
+
+.app-card span {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+
+/* Control Cards v2 */
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.control-card { padding: 18px; }
+.full-width { grid-column: span 2; }
+h3 { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; letter-spacing: 1px; }
+
+.btn-row { display: flex; gap: 8px; }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; font-size: 1rem; }
+.main-btn { width: 60px; height: 60px; background: rgba(255, 255, 255, 0.05); }
+.action-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+.action-btn.danger { color: var(--danger); }
+
+footer { padding: 15px 0; text-align: center; }
+footer p { font-size: 0.55rem; color: var(--text-dim); }
