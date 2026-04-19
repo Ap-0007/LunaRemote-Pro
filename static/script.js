@@ -1,80 +1,39 @@
-// Dynamic Socket Initialization v5.1.1
+// Dynamic Socket Initialization v5.2.0 (Zero-PIN)
 let currentTarget = window.location.origin;
 
-// If served from GitHub Pages, we need to prompt for the Mac IP or Tunnel URL
 if (currentTarget.includes('github.io') || currentTarget.includes('vercel.app')) {
     const savedTarget = localStorage.getItem('luna_target');
-    currentTarget = prompt("Enter LunaRemote URL (e.g. http://192.168.2.108:5001 or Tunnel URL)", savedTarget || "");
-    if (currentTarget) localStorage.setItem('luna_target', currentTarget);
+    if (!savedTarget) {
+        currentTarget = prompt("Enter LunaRemote URL (e.g. http://192.168.2.108:5001 or Tunnel URL)");
+        if (currentTarget) localStorage.setItem('luna_target', currentTarget);
+    } else {
+        currentTarget = savedTarget;
+    }
 }
 
 const socket = io(currentTarget);
 
-// ── Auth Logic ──
-let pinInput = "";
-const authOverlay = document.getElementById('auth-overlay');
-const dots = document.querySelectorAll('#pin-dots .dot');
-
-function updateDots() {
-    dots.forEach((dot, i) => dot.classList.toggle('filled', i < pinInput.length));
-}
-
-function keyPress(key) {
-    if (key === 'DEL') {
-        pinInput = pinInput.slice(0, -1);
-    } else if (pinInput.length < 6) {
-        pinInput += key;
-    }
-    updateDots();
-    triggerHaptic('light');
-
-    if (pinInput.length === 6) {
-        socket.emit('auth', { pin: pinInput });
-    }
-}
-
 socket.on('connect', () => {
     console.log("Connected to Luna Server");
-    const savedPin = localStorage.getItem('luna_pin');
-    if (savedPin) socket.emit('auth', { pin: savedPin });
-    else authOverlay.classList.remove('hidden');
-});
-
-socket.on('auth_success', () => {
-    localStorage.setItem('luna_pin', pinInput || localStorage.getItem('luna_pin'));
-    authOverlay.classList.add('hidden');
-    triggerHaptic('medium');
-    
-    const stateEl = document.getElementById('auth-state');
-    if (stateEl) {
-        stateEl.innerText = "🔓";
-        stateEl.classList.add('secure');
-    }
     const statusEl = document.getElementById('connection-status');
-    if (statusEl) statusEl.innerText = "Secure Connection";
-});
-
-socket.on('auth_fail', () => {
-    const content = document.querySelector('.auth-content');
-    content.classList.add('shake');
-    triggerHaptic('heavy');
-    
-    setTimeout(() => {
-        content.classList.remove('shake');
-        pinInput = "";
-        updateDots();
-    }, 400);
-});
-
-socket.on('auth_required', () => {
-    authOverlay.classList.remove('hidden');
+    if (statusEl) {
+        statusEl.innerText = "Connected (Unsecured)";
+        statusEl.classList.add('connected');
+    }
     const stateEl = document.getElementById('auth-state');
-    if (stateEl) stateEl.innerText = "🔒";
+    if (stateEl) stateEl.innerText = "🔓";
+});
+
+socket.on('disconnect', () => {
+    const statusEl = document.getElementById('connection-status');
+    if (statusEl) {
+        statusEl.innerText = "Disconnected";
+        statusEl.classList.remove('connected');
+    }
 });
 
 // UI Elements
 const trackpad = document.getElementById('trackpad');
-const status = document.getElementById('connection-status');
 const kbInput = document.getElementById('kb-input');
 
 // Interaction State
@@ -83,12 +42,11 @@ let isMoving = false, isScrolling = false;
 let lastScrollY = 0;
 const SCROLL_SENSITIVITY = 1.2;
 
-// Mechanical Haptics Helper
+// Haptics Helper
 const triggerHaptic = (type = 'light') => {
     if (!window.navigator.vibrate) return;
     if (type === 'light') window.navigator.vibrate(15);
     else if (type === 'medium') window.navigator.vibrate(40);
-    else if (type === 'heavy') window.navigator.vibrate([100, 50, 100]);
 };
 
 // 4-Tab Navigation Logic
@@ -197,7 +155,7 @@ document.querySelectorAll('.app-card').forEach(card => {
 });
 
 if (kbInput) {
-    kbInput.addEventListener('input', (e) => { if (e.data) socket.emit('keyboard', { text: e.data }); });
-    kbInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { socket.emit('keyboard', { text: 'ENTER' }); kbInput.value = ''; kbInput.blur(); } });
+    kbInput.oninput = (e) => { if (e.data) socket.emit('keyboard', { text: e.data }); };
+    kbInput.onkeypress = (e) => { if (e.key === 'Enter') { socket.emit('keyboard', { text: 'ENTER' }); kbInput.value = ''; kbInput.blur(); } };
 }
-document.getElementById('kb-backspace')?.addEventListener('click', () => { socket.emit('keyboard', { text: 'BACKSPACE' }); triggerHaptic('light'); });
+document.getElementById('kb-backspace')?.onclick = () => { socket.emit('keyboard', { text: 'BACKSPACE' }); triggerHaptic('light'); };
