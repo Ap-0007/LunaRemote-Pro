@@ -46,7 +46,7 @@ def check_auth(sid):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('.', 'index.html')
 
 # Serve static files from the root /static directory
 @app.route('/static/<path:path>')

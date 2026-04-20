@@ -57,9 +57,19 @@ function initSocket() {
         });
 
         socket.on('disconnect', () => {
-            document.getElementById('connection-status').innerText = "OFFLINE";
-            document.getElementById('connection-status').className = "";
+            const statusEl = document.getElementById('connection-status');
+            statusEl.innerText = "OFFLINE (Double Tap to Reset IP)";
+            statusEl.className = "";
         });
+
+        // Click to reset IP
+        document.getElementById('connection-status').onclick = () => {
+            if (localStorage.getItem('luna_target')) {
+                localStorage.removeItem('luna_target');
+                alert("Saved IP reset! Note: The page will now reload.");
+                window.location.reload();
+            }
+        };
 
         // Bind Controls (After Socket Init)
         bindControls();
